@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +16,9 @@ namespace ChronoTrack.Repository.Entities
         public bool IsActive { get; set; } = true;
 
         // Navigation properties
-        //public ICollection<OrganizationUser> OrganizationUsers { get; set; } = new List<OrganizationUser>();
-        //public ICollection<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
-        //public ICollection<TimeEntry> TimeEntries { get; set; } = new List<TimeEntry>();
-        //public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public ICollection<OrganizationUser> OrganizationUsers { get; set; } = new List<OrganizationUser>();
+        public ICollection<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
+        public ICollection<TimeEntry> TimeEntries { get; set; } = new List<TimeEntry>();
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }
