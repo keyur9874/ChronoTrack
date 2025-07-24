@@ -18,7 +18,7 @@ namespace ChronoTrack.Repository.Entities
         public DateTime? UpdatedAt { get; set; }
 
         // Foreign keys
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; } = Guid.Empty;
         public int ProjectId { get; set; }
 
         // Navigation properties

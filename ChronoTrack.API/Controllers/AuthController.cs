@@ -74,7 +74,7 @@ namespace ChronoTrack.API.Controllers
         }
 
         [HttpPost("logout")]
-        public async Task<ActionResult<ApiResponse<bool>>> Logout([FromBody] string userId)
+        public async Task<ActionResult<ApiResponse<bool>>> Logout([FromBody] Guid userId)
         {
             try
             {
