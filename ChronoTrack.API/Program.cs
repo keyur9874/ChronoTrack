@@ -1,5 +1,7 @@
 using ChronoTrack.Repository.Data;
 using ChronoTrack.Repository.Entities;
+using ChronoTrack.Repository.Interfaces;
+using ChronoTrack.Repository.Repositories;
 using ChronoTrack.Service.Interfaces;
 using ChronoTrack.Service.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,10 +12,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Add controllers and Swagger
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -21,17 +21,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ChronoTrackDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<User, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<ChronoTrackDbContext>()
-.AddDefaultTokenProviders();
+// === Custom Authentication Services ===
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -57,16 +52,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Register services
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITimeEntryService, TimeEntryService>();
-builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowAll",policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
@@ -79,15 +69,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    });
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

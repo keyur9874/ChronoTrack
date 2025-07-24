@@ -8,7 +8,7 @@ namespace ChronoTrack.Repository.Entities
 {
     public class OrganizationUser
     {
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; } = Guid.Empty;
         public int OrganizationId { get; set; }
         public string Role { get; set; } = "Member"; // Admin, Member
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;

@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 
 namespace ChronoTrack.Repository.Data
 {
-    public class ChronoTrackDbContext: IdentityDbContext<User>
+    public class ChronoTrackDbContext: DbContext
     {
         public ChronoTrackDbContext(DbContextOptions<ChronoTrackDbContext> options) : base(options)
         {
         }
 
+        public DbSet<User> Users { get; set; }
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<TimeEntry> TimeEntries { get; set; }
