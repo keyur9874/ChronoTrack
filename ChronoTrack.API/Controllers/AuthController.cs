@@ -1,6 +1,7 @@
 using ChronoTrack.Model.Common;
 using ChronoTrack.Model.DTOs.Auth;
 using ChronoTrack.Service.Interfaces;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChronoTrack.API.Controllers
@@ -52,6 +53,25 @@ namespace ChronoTrack.API.Controllers
             {
                 return BadRequest(ApiResponse<AuthResponseDto>.ErrorResponse(ex.Message));
             }
+        }
+
+        [HttpGet("external-login")]
+        public IActionResult ExternalLogin()
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Auth");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl ?? "/" };
+            return Challenge(properties, "AzureAD");
+        }
+
+        [HttpGet("token-received")]
+        public IActionResult TokenReceived([FromQuery] string token, [FromQuery] string refresh)
+        {
+            return Ok(new
+            {
+                Message = "External login succeeded. Tokens received:",
+                AccessToken = token,
+                RefreshToken = refresh
+            });
         }
 
         [HttpPost("refresh-token")]

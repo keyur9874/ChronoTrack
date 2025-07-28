@@ -11,6 +11,7 @@ namespace ChronoTrack.Service.Interfaces
     {
         Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto);
         Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
+        Task<AuthResponseDto> HandleExternalLoginAsync(string email, string firstName, string lastName, LoginType loginType);
         Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken);
         Task<bool> LogoutAsync(Guid userId);
         Task<bool> RevokeTokenAsync(string refreshToken);

@@ -34,7 +34,8 @@ namespace ChronoTrack.Service.Services
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Email = registerDto.Email,
-                PasswordHash = _passwordHasher.HashPassword(registerDto.Password)
+                PasswordHash = registerDto.LoginType == LoginType.Local ? _passwordHasher.HashPassword(registerDto.Password) : null,
+                LoginType = registerDto.LoginType,
             };
 
             await _userRepository.CreateAsync(user);
@@ -54,6 +55,7 @@ namespace ChronoTrack.Service.Services
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
+                    LoginType = user.LoginType
                 }
             };
         }
@@ -83,7 +85,51 @@ namespace ChronoTrack.Service.Services
                     Email = user.Email,
                 }
             };
-        }        
+        }
+
+        public async Task<AuthResponseDto> HandleExternalLoginAsync(string email, string firstName, string lastName, LoginType loginType)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            if (user != null && user.LoginType != loginType)
+            {
+                throw new InvalidOperationException("This email is already registered with a different login method.");
+            }
+
+            if (user == null)
+            {
+                user = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                    LoginType = loginType,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _userRepository.CreateAsync(user);
+            }
+
+            var token = _jwtTokenService.GenerateToken(user);
+            var refreshToken = _refreshTokenService.GenerateRefreshToken();
+            await _refreshTokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+
+            return new AuthResponseDto
+            {
+                Token = _jwtTokenService.WriteToken(token),
+                RefreshToken = refreshToken.Token,
+                ExpiryDate = token.ValidTo,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    LoginType = user.LoginType
+                }
+            };
+        }
+
 
         public async Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken)
         {

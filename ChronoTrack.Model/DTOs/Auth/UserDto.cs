@@ -14,6 +14,14 @@ namespace ChronoTrack.Model.DTOs.Auth
         public string Email { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
+        public LoginType LoginType { get; set; } = LoginType.Local;
         public bool IsActive { get; set; }
+    }
+
+    public enum LoginType
+    {
+        Local,
+        Google,
+        AzureAd,
     }
 }
